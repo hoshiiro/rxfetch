@@ -241,6 +241,15 @@ get_de_wm() {
 	echo "${wm:-unknown}"
 }
 
+get_cpu() {
+	if [ "$kernel" = Android ]; then
+		cpu_brand=$(cat /proc/cpuinfo | tail -1 | sed "s/.*: //")
+	else
+		cpu_brand=$(cat /proc/cpuinfo | head -n 5 | tail -1 | sed 's/.*: //')
+	fi
+	echo "${cpu_brand}"
+}
+
 setup_fonts
 
 echo "               "
@@ -258,6 +267,10 @@ echo -e "   ${c9}(${c0}${c8}\_;/${c0}${c9})${c0}      ${c1}init${c3}   $(get_ini
 
 if [ -n "$DISPLAY" ]; then
 	echo -e "               ${c2}de/wm${c3}  $(get_de_wm)"
+fi
+
+if cat /proc/cpuinfo &>/dev/null; then
+	echo -e "               ${c2}cpu${c3}    $(get_cpu)"
 fi
 
 echo -e "               ${c7}up${c3}    $(get_uptime)"
