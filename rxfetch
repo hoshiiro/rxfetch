@@ -178,11 +178,7 @@ get_distro_name() {
 # Get root partition space used
 get_storage_info() {
 	if [ "$kernel" = Android ]; then
-		_MOUNTED_ON="/data"
-		_GREP_ONE_ROW="$(df -h | grep ${_MOUNTED_ON} | tail -1)"
-		_SIZE="$(echo "${_GREP_ONE_ROW}" | awk '{print $2}')"
-		_USED="$(echo "${_GREP_ONE_ROW}" | awk '{print $3}')"
-		echo "$(head -n1 <<<"${_USED}")B / $(head -n1 <<<"${_SIZE}")B"
+		df -h | grep '/dev/fuse' | awk 'NR==1 {label="  \033[1;33mdisk\033[0m  "} NR>1 {label=""} {printf "%-8s \033[1;37m%-3s / %-3s (%s)\033[0m\n", label, $3, $2, $6}'
 	elif [ "$kernel" = "Darwin" ]; then
 		total_size=$(df -Hl | grep -w "/" | awk '{print $2}')
 		free_size=$(df -Hl | grep -w "/" | awk '{print $4}')
@@ -273,12 +269,12 @@ echo -e "  ${c6}ram${c3}    $(get_mem)"
 # 	echo -e "  ${c2}de/wm${c3}  $(get_de_wm)"
 # fi
 
-# if cat /proc/cpuinfo &>/dev/null; then
-# 	echo -e "  ${c2}cpu${c3}    $(get_cpu)"
-# fi
+if cat /proc/cpuinfo &>/dev/null; then
+	echo -e "  ${c2}cpu${c3}    $(get_cpu)"
+fi
 
 echo -e "  ${c7}up${c3}    $(get_uptime)"
-echo -e "  ${c6}disk${c3}   $(get_storage_info)"
+echo -e "$(get_storage_info)"
 
 if [ "$kernel" != Android ] && [ "$kernel" != Darwin ]; then
 echo -e "               "
